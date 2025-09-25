@@ -1,0 +1,24 @@
+button {
+  border-radius: 5px;
+  border: 1px solid transparent;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  /* font-size: 1em; */
+  /* font-family: inherit; */
+}
+
+button:hover {
+  border-color: grey;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.p-panel-content {
+  background-color: #F5F5F5
+;
+  overflow: hidden;
+}
