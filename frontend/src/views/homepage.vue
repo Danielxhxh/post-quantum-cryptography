@@ -1,12 +1,12 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { Buffer } from "buffer";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
 globalThis.Buffer = Buffer;
 
-const API_BASE = "http://127.0.0.1:9999"; // FastAPI backend
+const API_BASE = "http://127.0.0.1:8000"; // FastAPI backend
 
 // --- Reactive state ---
 const clientECDHE = ref({});
@@ -20,7 +20,7 @@ const combinedSecret = ref("");
 const sessionKey = ref("");
 
 const message = ref("Hello server!");
-const ciphertext = ref({});
+const ciphertext = ref("");
 const decryptedMessage = ref("");
 
 const error = ref(false);
@@ -165,12 +165,16 @@ onMounted(() => {
             <Panel header="Client's Keys" toggleable>
               <vue-json-pretty :data="clientECDHE"/>
               <small v-if="clientECDHE.ecdhe_pk">({{ byteLength(clientECDHE.ecdhe_pk) }} bytes)</small>
+              <br>
+              <br>
               <vue-json-pretty :data="clientPQC"/>
               <small v-if="clientPQC.pqc_pk">({{ byteLength(clientPQC.pqc_pk) }} bytes)</small>
             </Panel>
             <Panel header="Server's Keys" toggleable>
               <vue-json-pretty :data="serverECDHE"/>
               <small v-if="serverECDHE.ecdhe_pk">({{ byteLength(serverECDHE.ecdhe_pk) }} bytes)</small>
+              <br>
+              <br>
               <vue-json-pretty :data="serverPQC"/>
               <small v-if="serverPQC.pqc_pk">({{ byteLength(serverPQC.pqc_pk) }} bytes)</small>
             </Panel>
@@ -201,15 +205,8 @@ onMounted(() => {
               <small v-if="sharedPQC">({{ byteLength(sharedPQC) }} bytes)</small>
             </Panel>
 
-            <Divider class="full-row" align="center"> 
-            
-              <p style="margin:10px 0; font-style:italic; color:#444;">
-  The <b>combined secret</b> is obtained by concatenating the <b>ECDHE</b> and <b>PQC</b> shared secrets.
-              </p>
-            </Divider>
-
             <!-- Full width row -->
-            <Panel header="Combined Secret" toggleable class="full-row">
+            <Panel header="Combined Secret (concatenation of the ECDHE and PQC shared secrets)" toggleable class="full-row">
               <vue-json-pretty :data="combinedSecret" />
               <small v-if="combinedSecret">({{ byteLength(combinedSecret) }} bytes)</small>
             </Panel>
@@ -264,6 +261,7 @@ onMounted(() => {
               </template>
               <template #content>
                 <vue-json-pretty :data="sessionKey"/>
+                <small v-if="sessionKey">({{ byteLength(sessionKey) }} bytes)</small>
               </template>
             </Card>
           </div>
@@ -275,8 +273,15 @@ onMounted(() => {
                 <h3>Encrypted Message</h3>
               </template>
               <template #content>
-                <vue-json-pretty :data="ciphertext"/>
-              </template>
+                <vue-json-pretty :data="ciphertext" />
+                <small v-if="ciphertext.ciphertext">
+                  ({{ byteLength(ciphertext.ciphertext) }} bytes ciphertext)
+                </small>
+                <br />
+                <small v-if="ciphertext.nonce">
+                  ({{ byteLength(ciphertext.nonce) }} bytes nonce)
+                </small>
+                </template>
             </Card>
           </div>
         </div>
@@ -300,7 +305,14 @@ onMounted(() => {
               <h3>Encrypted Message</h3>
             </template>
             <template #content>
-              <vue-json-pretty :data="ciphertext"/>
+                <vue-json-pretty :data="ciphertext" />
+                <small v-if="ciphertext.ciphertext">
+                  ({{ byteLength(ciphertext.ciphertext) }} bytes ciphertext)
+                </small>
+                <br />
+                <small v-if="ciphertext.nonce">
+                  ({{ byteLength(ciphertext.nonce) }} bytes nonce)
+                </small>
             </template>
           </Card>
             
